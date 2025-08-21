@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My First Webpage</title>
+
+  <!-- Step 2: CSS Styling -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    img {
+      width: 300px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    a {
+      color: #2980b9;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #219150;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Step 1: HTML Structure -->
+  <h1>Welcome to My First Webpage</h1>
+  <p>This is a simple webpage built using <strong>HTML</strong>, styled with <strong>CSS</strong>, and made interactive with <strong>JavaScript</strong>.</p>
+
+  <img src="https://via.placeholder.com/300" alt="Sample Image">
+
+  <p>Learn more about web development on <a href="https://developer.mozilla.org/" target="_blank">MDN Web Docs</a>.</p>
+
+  <!-- Step 3: JavaScript Interactivity -->
+  <button onclick="showMessage()">Click Me</button>
+
+  <script>
+    function showMessage() {
+      alert("Hello! You just clicked the button 🚀");
+    }
+  </script>
+
+</body>
+</html>
