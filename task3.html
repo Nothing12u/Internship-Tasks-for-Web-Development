@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Weather Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for additional styling */
+        .weather-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .carousel-item {
+            transition: transform 0.5s ease;
+        }
+        
+        .quiz-option {
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e6f7ff;
+        }
+        
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da !important;
+            border-color: #dc3545 !important;
+        }
+        
+        /* Responsive design adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem !important;
+            }
+            
+            .section-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .weather-stats {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .weather-stats {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .carousel-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+        
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <h1 class="hero-title text-3xl font-bold">🌤️ Weather Insights</h1>
+                <nav class="hidden md:block">
+                    <ul class="flex space-x-6">
+                        <li><a href="#dashboard" class="hover:text-blue-200 transition-colors">Dashboard</a></li>
+                        <li><a href="#quiz" class="hover:text-blue-200 transition-colors">Weather Quiz</a></li>
+                        <li><a href="#gallery" class="hover:text-blue-200 transition-colors">Gallery</a></li>
+                    </ul>
+                </nav>
+                <button class="md:hidden text-2xl">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-400 to-blue-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4">Explore Weather Data & Knowledge</h2>
+            <p class="text-xl mb-8">Interactive dashboard, educational quiz, and stunning weather visuals</p>
+            <button onclick="fetchWeatherData()" class="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-100 transition-colors">
+                Get Current Weather
+            </button>
+        </div>
+    </section>
+
+    <!-- Weather Dashboard Section -->
+    <section id="dashboard" class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl font-bold text-center mb-12 text-gray-800">🌡️ Weather Dashboard</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-800">Current Weather</h3>
+                    <p class="text-gray-600">Enter your city to get real-time weather data</p>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <input 
+                        type="text" 
+                        id="city-input" 
+                        placeholder="Enter city name..." 
+                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                    <button 
+                        onclick="fetchWeatherData()" 
+                        class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                        Get Weather
+                    </button>
+                </div>
+                
+                <div id="weather-result" class="text-center">
+                    <p class="text-gray-600">Weather data will appear here...</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Weather Cards -->
+                <div class="weather-card bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-center">
+                        <h4 class="text-xl font-semibold mb-4">Temperature Trends</h4>
+                        <img src="https://placehold.co/400x200" alt="Temperature graph showing daily highs and lows with blue and red lines" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <p class="text-gray-600">Track temperature patterns and seasonal changes in your area.</p>
+                    </div>
+                </div>
+                
+                <div class="weather-card bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-center">
+                        <h4 class="text-xl font-semibold mb-4">Precipitation Forecast</h4>
+                        <img src="https://placehold.co/400x200" alt="Rainfall radar map showing precipitation intensity across different regions" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <p class="text-gray-600">Get detailed precipitation forecasts and rainfall predictions.</p>
+                    </div>
+                </div>
+                
+                <div class="weather-card bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-center">
+                        <h4 class="text-xl font-semibold mb-4">Wind Patterns</h4>
+                        <img src="https://placehold.co/400x200" alt="Wind direction map with arrows showing atmospheric circulation patterns" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <p class="text-gray-600">Analyze wind speed and direction patterns for your location.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Quiz Section -->
+    <section id="quiz" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl font-bold text-center mb-12 text-gray-800">🧠 Weather Knowledge Quiz</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto">
+                <div id="quiz-container">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-semibold text-gray-800">Test Your Weather Knowledge</h3>
+                        <p class="text-gray-600">Answer these questions to see how much you know about weather phenomena</p>
+                    </div>
+                    
+                    <div id="quiz-progress" class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Question <span id="current-question">1</span> of 5</span>
+                            <span class="text-sm font-semibold">Score: <span id="score">0</span>/5</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="question-container" class="mb-6">
+                        <h4 class="text-xl font-semibold mb-4" id="question-text">What is the most common gas in Earth's atmosphere?</h4>
+                        <div id="options-container" class="space-y-3">
+                            <!-- Options will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button 
+                            id="next-button" 
+                            class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors opacity-50 cursor-not-allowed"
+                            disabled
+                        >
+                            Next Question
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="quiz-results" class="hidden text-center">
+                    <h3 class="text-2xl font-semibold mb-4">Quiz Completed!</h3>
+                    <p class="text-xl mb-4">Your final score: <span id="final-score" class="font-bold">0</span>/5</p>
+                    <p id="result-message" class="text-gray-600 mb-6"></p>
+                    <button 
+                        onclick="resetQuiz()" 
+                        class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Carousel Section -->
+    <section id="gallery" class="py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="section-title text-3xl font-bold text-center mb-12 text-gray-800">📷 Weather Gallery</h2>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="carousel-container relative overflow-hidden rounded-lg">
+                    <div id="carousel-track" class="flex transition-transform duration-500">
+                        <!-- Carousel items will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="carousel-controls flex justify-center mt-6 space-x-4">
+                        <button 
+                            onclick="prevSlide()" 
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        >
+                            Previous
+                        </button>
+                        <button 
+                            onclick="nextSlide()" 
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 Weather Insights Dashboard. Built with HTML, CSS, and JavaScript.</p>
+            <p class="text-gray-400 mt-2">Weather data provided by OpenWeatherMap API</p>
+        </div>
+    </footer>
+
+    <script>
+        // Quiz Data
+        const quizQuestions = [
+            {
+                question: "What is the most common gas in Earth's atmosphere?",
+                options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Argon"],
+                correct: 1
+            },
+            {
+                question: "What scale is used to measure tornado intensity?",
+                options: ["Richter Scale", "Fujita Scale", "Beaufort Scale", "Saffir-Simpson Scale"],
+                correct: 1
+            },
+            {
+                question: "What type of cloud is typically associated with thunderstorms?",
+                options: ["Stratus", "Cumulonimbus", "Cirrus", "Nimbostratus"],
+                correct: 1
+            },
+            {
+                question: "What causes the different seasons on Earth?",
+                options: ["Distance from the Sun", "Earth's tilt on its axis", "Ocean currents", "Atmospheric pressure"],
+                correct: 1
+            },
+            {
+                question: "What is the term for the boundary between two air masses?",
+                options: ["Front", "Trough", "Ridge", "Vortex"],
+                correct: 0
+            }
+        ];
+
+        // Carousel Images
+        const carouselImages = [
+            {
+                src: "https://placehold.co/800x400",
+                alt: "Dramatic thunderstorm clouds with lightning strikes over a mountain range at sunset"
+            },
+            {
+                src: "https://placehold.co/800x400",
+                alt: "Beautiful rainbow arching over green fields after a rain shower with clear blue sky"
+            },
+            {
+                src: "https://placehold.co/800x400",
+                alt: "Snow-covered landscape with frost-covered trees and gentle snowfall in winter forest"
+            },
+            {
+                src: "https://placehold.co/800x400",
+                alt: "Sunny beach scene with clear blue sky, white clouds, and turquoise ocean waves"
+            },
+            {
+                src: "https://placehold.co/800x400",
+                alt: "Urban cityscape with foggy atmosphere creating dramatic morning light effects"
+            }
+        ];
+
+        // Quiz State
+        let currentQuestion = 0;
+        let score = 0;
+        let quizCompleted = false;
+
+        // Carousel State
+        let currentSlide = 0;
+
+        // Initialize the application
+        function initApp() {
+            initializeQuiz();
+            initializeCarousel();
+        }
+
+        // Quiz Functions
+        function initializeQuiz() {
+            displayQuestion();
+            document.getElementById('next-button').addEventListener('click', nextQuestion);
+        }
+
+        function displayQuestion() {
+            const question = quizQuestions[currentQuestion];
+            const optionsContainer = document.getElementById('options-container');
+            const questionText = document.getElementById('question-text');
+            const currentQuestionSpan = document.getElementById('current-question');
+            const progressBar = document.getElementById('progress-bar');
+
+            questionText.textContent = question.question;
+            currentQuestionSpan.textContent = currentQuestion + 1;
+            progressBar.style.width = `${((currentQuestion) / quizQuestions.length) * 100}%`;
+
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors';
+                button.textContent = option;
+                button.onclick = () => selectOption(index);
+                optionsContainer.appendChild(button);
+            });
+
+            document.getElementById('next-button').disabled = true;
+            document.getElementById('next-button').classList.add('opacity-50', 'cursor-not-allowed');
+        }
+
+        function selectOption(selectedIndex) {
+            const options = document.querySelectorAll('.quiz-option');
+            const correctIndex = quizQuestions[currentQuestion].correct;
+
+            options.forEach((option, index) => {
+                option.disabled = true;
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== correctIndex) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === correctIndex) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+
+            document.getElementById('next-button').disabled = false;
+            document.getElementById('next-button').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < quizQuestions.length) {
+                displayQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            const quizContainer = document.getElementById('quiz-container');
+            const resultsContainer = document.getElementById('quiz-results');
+            const finalScoreSpan = document.getElementById('final-score');
+            const resultMessage = document.getElementById('result-message');
+
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            finalScoreSpan.textContent = score;
+            
+            if (score === quizQuestions.length) {
+                resultMessage.textContent = "Perfect score! You're a weather expert!";
+            } else if (score >= quizQuestions.length * 0.7) {
+                resultMessage.textContent = "Great job! You know your weather facts well!";
+            } else if (score >= quizQuestions.length * 0.5) {
+                resultMessage.textContent = "Good effort! Keep learning about weather phenomena!";
+            } else {
+                resultMessage.textContent = "Keep studying! Weather is a fascinating subject!";
+            }
+            
+            quizCompleted = true;
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            quizCompleted = false;
+            
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('score').textContent = '0';
+            
+            displayQuestion();
+        }
+
+        // Carousel Functions
+        function initializeCarousel() {
+            const carouselTrack = document.getElementById('carousel-track');
+            carouselImages.forEach((image, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-item w-full flex-shrink-0';
+                slide.innerHTML = `
+                    <img src="${image.src}" alt="${image.alt}" class="w-full h-96 object-cover rounded-lg">
+                    <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white p-4 rounded">
+                        <p class="text-sm">${image.alt}</p>
+                    </div>
+                `;
+                carouselTrack.appendChild(slide);
+            });
+            
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const carouselTrack = document.getElementById('carousel-track');
+            const slideWidth = 100; // 100% of container
+            carouselTrack.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % carouselImages.length;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + carouselImages.length) % carouselImages.length;
+            updateCarousel();
+        }
+
+        // Weather API Functions
+        async function fetchWeatherData() {
+            const cityInput = document.getElementById('city-input').value.trim() || 'London';
+            const weatherResult = document.getElementById('weather-result');
+            
+            weatherResult.innerHTML = `
+                <div class="loading p-8 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p class="mt-2 text-gray-600">Fetching weather data for ${cityInput}...</p>
+                </div>
+            `;
+
+            try {
+                // Note: You need to sign up for a free API key at https://openweathermap.org/api
+                // Replace 'YOUR_API_KEY' with your actual API key
+                const API_KEY = 'YOUR_API_KEY';
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityInput)}&appid=${API_KEY}&units=metric`
+                );
+                
+                if (!response.ok) {
+                    throw new Error('City not found or API error');
+                }
+                
+                const data = await response.json();
+                
+                const weatherHTML = `
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h4 class="text-2xl font-semibold mb-4">Weather in ${data.name}, ${data.sys.country}</h4>
+                        
+                        <div class="weather-stats grid grid-cols-3 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600">${Math.round(data.main.temp)}°C</div>
+                                <p class="text-sm text-gray-600">Temperature</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-green-600">${data.main.humidity}%</div>
+                                <p class="text-sm text-gray-600">Humidity</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-gray-600">${data.wind.speed} m/s</div>
+                                <p class="text-sm text-gray-600">Wind Speed</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="text-lg capitalize">${data.weather[0].description}</p>
+                            <p class="text-sm text-gray-600">Feels like: ${Math.round(data.main.feels_like)}°C</p>
+                        </div>
+                    </div>
+                `;
+                
+                weatherResult.innerHTML = weatherHTML;
+                
+            } catch (error) {
+                weatherResult.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                        <h4 class="text-xl font-semibold text-red-600 mb-2">Error</h4>
+                        <p class="text-red-600">${error.message}. Please check the city name and try again.</p>
+                        <p class="text-sm text-gray-600 mt-2">Note: You need to add your OpenWeatherMap API key to make this work.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-rotate carousel
+        setInterval(() => {
+            if (!document.hidden) {
+                nextSlide();
+            }
+        }, 5000);
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
