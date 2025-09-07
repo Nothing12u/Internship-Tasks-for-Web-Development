@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Product Listing Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #f3f4f6, #e5e7eb);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .filter-sidebar {
+            position: sticky;
+            top: 20px;
+        }
+        @media (max-width: 768px) {
+            .filter-sidebar {
+                position: relative;
+                top: auto;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold text-center">Product Listing & Shopping Hub</h1>
+            <p class="text-center mt-2">Discover, filter, and sort your favorite products with ease.</p>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Filter Sidebar -->
+            <aside class="filter-sidebar w-full lg:w-1/4 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4">Filters</h2>
+                <!-- Category Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Category</label>
+                    <select id="categoryFilter" class="w-full p-2 border rounded">
+                        <option value="all">All Categories</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="home">Home & Garden</option>
+                        <option value="books">Books</option>
+                    </select>
+                </div>
+                <!-- Price Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Price Range</label>
+                    <input type="number" id="minPrice" placeholder="Min Price" class="w-full p-2 border rounded mb-2" min="0">
+                    <input type="number" id="maxPrice" placeholder="Max Price" class="w-full p-2 border rounded" min="0">
+                </div>
+                <!-- Rating Filter -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Minimum Rating</label>
+                    <select id="ratingFilter" class="w-full p-2 border rounded">
+                        <option value="0">Any Rating</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="2">2+ Stars</option>
+                        <option value="1">1+ Stars</option>
+                    </select>
+                </div>
+                <!-- Clear Filters -->
+                <button id="clearFilters" class="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">Clear Filters</button>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1">
+                <!-- Search and Sort Bar -->
+                <div class="bg-white p-4 rounded-lg shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-center">
+                    <input type="text" id="searchInput" placeholder="Search products..." class="w-full sm:w-1/2 p-2 border rounded mb-4 sm:mb-0">
+                    <select id="sortSelect" class="w-full sm:w-1/3 p-2 border rounded">
+                        <option value="name-asc">Name A-Z</option>
+                        <option value="name-desc">Name Z-A</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="rating-high">Rating: High to Low</option>
+                    </select>
+                </div>
+                <!-- Cart Summary -->
+                <div class="bg-white p-4 rounded-lg shadow-lg mb-6 flex justify-between items-center">
+                    <span class="text-lg font-semibold">Items in Cart: <span id="cartCount">0</span></span>
+                    <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">View Cart</button>
+                </div>
+                <!-- Product Grid -->
+                <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Products will be populated here -->
+                </div>
+                <!-- Pagination -->
+                <div class="mt-8 flex justify-center">
+                    <button id="prevPage" class="bg-gray-500 text-white px-4 py-2 rounded mr-2 disabled:opacity-50" disabled>Previous</button>
+                    <span id="pageInfo" class="mx-4 self-center">Page 1 of 1</span>
+                    <button id="nextPage" class="bg-gray-500 text-white px-4 py-2 rounded ml-2 disabled:opacity-50" disabled>Next</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mock Product Data
+        const products = [
+            { id: 1, name: "Wireless Earbuds", category: "electronics", price: 49.99, rating: 4.5, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/ebdb3805-749a-427b-bd65-7b64e0b29c6f.png", description: "High-quality wireless earbuds with noise cancellation." },
+            { id: 2, name: "Cotton T-Shirt", category: "clothing", price: 19.99, rating: 4.0, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f374a326-3ed4-4885-9bbc-c68a6daafefe.png", description: "Comfortable cotton t-shirt in various colors." },
+            { id: 3, name: "Smartphone Stand", category: "electronics", price: 29.99, rating: 4.2, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/fa1dccb9-fe93-4bba-94f2-d5dbefa2c51e.png", description: "Adjustable stand for smartphones and tablets." },
+            { id: 4, name: "Garden Hose", category: "home", price: 39.99, rating: 3.8, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/56fd4c26-c953-4806-b8d1-f72abb2348f4.png", description: "Durable garden hose for outdoor use." },
+            { id: 5, name: "Mystery Novel", category: "books", price: 14.99, rating: 4.7, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2006f891-6801-4636-a205-037ba583ad98.png", description: "Thrilling mystery novel for avid readers." },
+            { id: 6, name: "Bluetooth Speaker", category: "electronics", price: 79.99, rating: 4.3, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/489b67cc-990a-4670-886f-716549eaf432.png", description: "Portable Bluetooth speaker with excellent sound." },
+            { id: 7, name: "Denim Jeans", category: "clothing", price: 59.99, rating: 4.1, image: "https://placehold.co/300x300?text=Denim+Jeans", description: "Classic denim jeans with a comfortable fit." },
+            { id: 8, name: "Cooking Set", category: "home", price: 89.99, rating: 4.4, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/77826a93-c5e6-403a-8df2-6641d61a307e.png", description: "Complete cooking set for the aspiring chef." },
+            { id: 9, name: "Science Fiction Book", category: "books", price: 17.99, rating: 4.6, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/9a952472-b66c-4bb6-a4e7-dd8e4bf6d9dc.png", description: "Imaginative science fiction story." },
+            { id: 10, name: "Digital Camera", category: "electronics", price: 249.99, rating: 4.8, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/201917f3-6181-46b7-8d97-36dfe0c85128.png", description: "High-resolution digital camera for photography enthusiasts." },
+            { id: 11, name: "Winter Jacket", category: "clothing", price: 99.99, rating: 4.2, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/416e15a5-4634-4bb7-be36-593022106ab8.png", description: "Warm winter jacket to keep you cozy." },
+            { id: 12, name: "Plant Pot Set", category: "home", price: 34.99, rating: 3.9, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3494aa56-4abf-484f-b66a-3464ffed891e.png", description: "Set of decorative plant pots for your garden." },
+            { id: 13, name: "Romance Novel", category: "books", price: 13.99, rating: 4.3, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7cf73c2e-0732-4910-8d31-d7ce93cfbe69.png", description: "Heartwarming romance novel." },
+            { id: 14, name: "Gaming Mouse", category: "electronics", price: 39.99, rating: 4.5, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/41d063f3-c7ba-49c9-87c3-60ed8ecdcd5f.png", description: "Precision gaming mouse for gamers." },
+            { id: 15, name: "Sneakers", category: "clothing", price: 79.99, rating: 4.0, image: "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/930acff3-da6b-40c5-9977-466a79db4b8b.png", description: "Comfortable sneakers for everyday wear." }
+        ];
+
+        let filteredProducts = [...products];
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let currentPage = 1;
+        const itemsPerPage = 9;
+
+        const categoryFilter = document.getElementById('categoryFilter');
+        const minPrice = document.getElementById('minPrice');
+        const maxPrice = document.getElementById('maxPrice');
+        const ratingFilter = document.getElementById('ratingFilter');
+        const clearFilters = document.getElementById('clearFilters');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const productGrid = document.getElementById('productGrid');
+        const cartCount = document.getElementById('cartCount');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+
+        function updateCartCount() {
+            cartCount.textContent = cart.length;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function applyFilters() {
+            const category = categoryFilter.value;
+            const minP = parseFloat(minPrice.value) || 0;
+            const maxP = parseFloat(maxPrice.value) || Infinity;
+            const minR = parseFloat(ratingFilter.value) || 0;
+            const searchTerm = searchInput.value.toLowerCase();
+
+            filteredProducts = products.filter(product => {
+                return (category === 'all' || product.category === category) &&
+                       (product.price >= minP && product.price <= maxP) &&
+                       (product.rating >= minR) &&
+                       (product.name.toLowerCase().includes(searchTerm) || product.description.toLowerCase().includes(searchTerm));
+            });
+
+            applySort();
+            renderProducts();
+        }
+
+        function applySort() {
+            const sortBy = sortSelect.value;
+            if (sortBy === 'price-low') {
+                filteredProducts.sort((a, b) => a.price - b.price);
+            } else if (sortBy === 'price-high') {
+                filteredProducts.sort((a, b) => b.price - a.price);
+            } else if (sortBy === 'rating-high') {
+                filteredProducts.sort((a, b) => b.rating - a.rating);
+            } else if (sortBy === 'name-asc') {
+                filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'name-desc') {
+                filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+            }
+        }
+
+        function renderProducts() {
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+            productGrid.innerHTML = '';
+            productsToShow.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card bg-white rounded-lg shadow-md overflow-hidden';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name} - ${product.description}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold mb-2">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${product.description}</p>
+                        <p class="text-lg font-bold mb-2">$${product.price.toFixed(2)}</p>
+                        <div class="flex items-center mb-4">
+                            <span class="text-yellow-500">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}</span>
+                            <span class="ml-2 text-sm">(${product.rating})</span>
+                        </div>
+                        <button class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 add-to-cart" data-id="${product.id}">Add to Cart</button>
+                    </div>
+                `;
+                productGrid.appendChild(productCard);
+            });
+
+            // Update pagination
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevPage.disabled = currentPage === 1;
+            nextPage.disabled = currentPage >= totalPages;
+
+            // Add event listeners for "Add to Cart" buttons
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.dataset.id);
+                    const product = products.find(p => p.id === productId);
+                    cart.push(product);
+                    updateCartCount();
+                    alert(`${product.name} added to cart!`);
+                });
+            });
+        }
+
+        // Event Listeners
+        categoryFilter.addEventListener('change', applyFilters);
+        minPrice.addEventListener('input', applyFilters);
+        maxPrice.addEventListener('input', applyFilters);
+        ratingFilter.addEventListener('change', applyFilters);
+        searchInput.addEventListener('input', applyFilters);
+        sortSelect.addEventListener('change', () => {
+            applySort();
+            renderProducts();
+        });
+        clearFilters.addEventListener('click', () => {
+            categoryFilter.value = 'all';
+            minPrice.value = '';
+            maxPrice.value = '';
+            ratingFilter.value = '0';
+            searchInput.value = '';
+            currentPage = 1;
+            applyFilters();
+        });
+        prevPage.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderProducts();
+            }
+        });
+        nextPage.addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderProducts();
+            }
+        });
+
+        // Initial render
+        updateCartCount();
+        applyFilters();
+    </script>
+</body>
+</html>
+</content>
+</create_file>
+
+<attempt_completion>
+This product listing page is a comprehensive e-commerce interface built with HTML, CSS (using TailwindCSS), and JavaScript. It includes dynamic filtering by category, price range, and minimum rating, sorting options by name, price, or rating, real-time search, pagination for large lists, a simulated cart with localStorage persistence, and responsive design for various screen sizes. The page uses placeholder images for products, ensuring a professional and user-friendly experience.
+</attempt_completion>
