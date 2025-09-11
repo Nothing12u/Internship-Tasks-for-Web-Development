@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hotel Menu</title>
+<style>
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 0; background: #f5f5f5; color: #333;
+  }
+  header {
+    background: #004d40;
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0;
+    font-weight: 700;
+  }
+  main {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  .menu-category {
+    margin-bottom: 2rem;
+  }
+  .menu-category h2 {
+    border-bottom: 2px solid #004d40;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .menu-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+    gap: 1.5rem;
+  }
+  .menu-item {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+  }
+  .menu-item:hover {
+    transform: translateY(-5px);
+  }
+  .menu-item img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  .menu-item-content {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .menu-item-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+  .menu-item-description {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+  }
+  .menu-item-price {
+    font-weight: 700;
+    color: #00796b;
+    font-size: 1.1rem;
+  }
+  /* Responsive */
+  @media (max-width: 480px) {
+    .menu-items {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Hotel Gourmet Menu</h1>
+</header>
+
+<main>
+  <section class="menu-category" id="breakfast">
+    <h2>Breakfast</h2>
+    <div class="menu-items" id="breakfast-items">
+      <!-- Breakfast items inserted here -->
+    </div>
+  </section>
+
+  <section class="menu-category" id="lunch">
+    <h2>Lunch</h2>
+    <div class="menu-items" id="lunch-items">
+      <!-- Lunch items inserted here -->
+    </div>
+  </section>
+
+  <section class="menu-category" id="dinner">
+    <h2>Dinner</h2>
+    <div class="menu-items" id="dinner-items">
+      <!-- Dinner items inserted here -->
+    </div>
+  </section>
+</main>
+
+<script>
+  // Menu data
+  const menuData = {
+    breakfast: [
+      {
+        title: "Classic Pancakes",
+        description: "Fluffy pancakes served with maple syrup and fresh berries.",
+        price: 8.99,
+        img: "https://images.unsplash.com/photo-1505253210343-1a1a1a1a1a1a?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        title: "Avocado Toast",
+        description: "Sourdough toast topped with smashed avocado, cherry tomatoes, and feta.",
+        price: 9.99,
+        img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        title: "Omelette Deluxe",
+        description: "Three-egg omelette with cheese, mushrooms, and spinach.",
+        price: 10.99,
+        img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=80"
+      }
+    ],
+    lunch: [
+      {
+        title: "Caesar Salad",
+        description: "Crisp romaine lettuce with Caesar dressing, croutons, and parmesan.",
+        price: 12.99,
+        img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        title: "Grilled Chicken Sandwich",
+        description: "Juicy grilled chicken breast with lettuce, tomato, and aioli on a brioche bun.",
+        price: 14.99,
+        img: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        title: "Veggie Wrap",
+        description: "Whole wheat wrap filled with hummus, fresh veggies, and feta cheese.",
+        price: 11.99,
+        img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80"
+      }
+    ],
+    dinner: [
+      {
+        title: "Steak Frites",
+        description: "Grilled sirloin steak served with crispy fries and herb butter.",
+        price: 24.99,
+        img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        title: "Seared Salmon",
+        description: "Pan-seared salmon with lemon butter sauce and seasonal vegetables.",
+        price: 22.99,
+        img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        title: "Mushroom Risotto",
+        description: "Creamy risotto with wild mushrooms and parmesan cheese.",
+        price: 19.99,
+        img: "https://images.unsplash.com/photo-1543352634-1b7a0a1a1a1a?auto=format&fit=crop&w=600&q=80"
+      }
+    ]
+  };
+
+  // Function to create menu item HTML
+  function createMenuItem(item) {
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+
+    const img = document.createElement('img');
+    img.setAttribute('data-src', item.img);
+    img.alt = item.title;
+    img.loading = 'lazy';
+    img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDYwMCAxODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjYwMCIgaGVpZ2h0PSIxODAiIGZpbGw9IiNlZWUiLz48L3N2Zz4='; // placeholder
+
+    const content = document.createElement('div');
+    content.className = 'menu-item-content';
+
+    const title = document.createElement('h3');
+    title.className = 'menu-item-title';
+    title.textContent = item.title;
+
+    const desc = document.createElement('p');
+    desc.className = 'menu-item-description';
+    desc.textContent = item.description;
+
+    const price = document.createElement('div');
+    price.className = 'menu-item-price';
+    price.textContent = `$${item.price.toFixed(2)}`;
+
+    content.appendChild(title);
+    content.appendChild(desc);
+    content.appendChild(price);
+
+    div.appendChild(img);
+    div.appendChild(content);
+
+    return div;
+  }
+
+  // Render menu items
+  function renderMenu() {
+    for (const category in menuData) {
+      const container = document.getElementById(`${category}-items`);
+      if (!container) continue;
+      menuData[category].forEach(item => {
+        container.appendChild(createMenuItem(item));
+      });
+    }
+  }
+
+  // Lazy load images using Intersection Observer
+  function lazyLoadImages() {
+    const images = document.querySelectorAll('img[data-src]');
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.getAttribute('data-src');
+            img.removeAttribute('data-src');
+            obs.unobserve(img);
+          }
+        });
+      });
+      images.forEach(img => observer.observe(img));
+    } else {
+      // Fallback: load all images immediately
+      images.forEach(img => {
+        img.src = img.getAttribute('data-src');
+        img.removeAttribute('data-src');
+      });
+    }
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    renderMenu();
+    lazyLoadImages();
+  });
+</script>
+
+</body>
+</html>
